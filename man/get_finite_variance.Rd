@@ -53,13 +53,16 @@ Required when \code{matches} is a data frame and
 \code{covs}.}
 }
 \value{
-A tibble with columns matching \code{get_total_variance()}:
-\code{V} (= V_E * N_T, for SE = sqrt(V)/sqrt(N_T) consistency),
-\code{V_E} (the finite-sample variance estimate S1^2/N_T + S0^2/ESS_C),
-\code{V_P} (NA — not decomposed by this estimator),
+A one-row tibble with columns
 \code{SE} (= sqrt(V_E)),
-\code{N_T}, \code{ESS_C}, \code{sigma_hat} (NA),
-plus diagnostics \code{S0_sq}, \code{S1_sq}, \code{cov_w_s}.
+\code{V_E} (the finite-sample variance estimate S1^2/N_T + S0^2/ESS_C),
+\code{N_T}, \code{N_C}, \code{ESS_C},
+\code{p_drop} (share of treated units whose matched set has fewer
+than 2 controls, so contributes no s_t^2),
+and the variance components \code{S0_sq}, \code{S1_sq}, and
+\code{cov_w_s} (NA when \code{homoskedastic = TRUE}).  No single
+residual SD (\code{sigma_hat}) is reported, since S0^2 and S1^2
+are estimated separately.
 }
 \description{
 Implements the plug-in estimator

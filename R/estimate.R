@@ -535,10 +535,10 @@ get_total_variance <- function(
       seed_addition = seed_addition
     )
     V_E <- v_e_result$V_E
-    # For bootstrap method, we don't have sigma_hat, so we approximate
+    # For bootstrap method, we don't have sigma_hat, so we back out the
+    # implied pooled variance from V_E = sigma^2 * (1/N_T + 1/ESS_C).
     # Essentially we are using V_E as the whole V for bootstrap, which is desired.
-    sigma_hat_squared <- V_E * (v_e_result$N_T + v_e_result$ESS_C) /
-      (1/v_e_result$N_T + 1/v_e_result$ESS_C)
+    sigma_hat_squared <- V_E / (1/v_e_result$N_T + 1/v_e_result$ESS_C)
     N_T <- v_e_result$N_T
     ESS_C <- v_e_result$ESS_C
   } else if (variance_method == "ai06") {
@@ -768,10 +768,16 @@ get_total_variance <- function(
 #' @param ... Additional arguments passed to \code{get_total_variance()}
 #'   when \code{superpopulation = TRUE}, e.g. \code{M} for the 'ai06'
 #'   method.
-#' @return A tibble with ATT estimate (ATT), standard error (SE),
-#'   t-statistic (t), total variance (V), measurement error variance
-#'   (V_E), population heterogeneity variance (V_P), and other
-#'   relevant statistics.
+#' @return A one-row tibble with the ATT estimate (ATT), standard
+#'   error (SE), and t-statistic (t), plus variance diagnostics that
+#'   depend on the estimator.  With \code{superpopulation = FALSE}
+#'   (default) these are the columns of \code{get_finite_variance()}
+#'   (\code{V_E}, \code{N_T}, \code{N_C}, \code{ESS_C},
+#'   \code{p_drop}, \code{S0_sq}, \code{S1_sq}, \code{cov_w_s}).
+#'   With \code{superpopulation = TRUE} they are the columns of
+#'   \code{get_total_variance()}, including total variance (V),
+#'   measurement error variance (V_E), population heterogeneity
+#'   variance (V_P), and the pooled residual SD (\code{sigma_hat}).
 #'
 #' @examples
 #' set.seed(4044440)
@@ -825,7 +831,7 @@ estimate_ATT <- function(
     return(tibble(
       ATT = NA_real_, SE = NA_real_, t = NA_real_,
       V = NA_real_, V_E = NA_real_, V_P = NA_real_,
-      N_T = NA_real_, ESS_C = NA_real_, N_C = NA_real_, sigma_hat = NA_real_
+      N_T = NA_real_, ESS_C = NA_real_, N_C = NA_real_
     ))
   }
 
@@ -1069,13 +1075,16 @@ calculate_S1_sq_treated_to_treated <- function(
 #' @param id_name Name of the unit ID column (default "id").  Same rules as
 #'   \code{covs}.
 #'
-#' @return A tibble with columns matching \code{get_total_variance()}:
-#'   \code{V} (= V_E * N_T, for SE = sqrt(V)/sqrt(N_T) consistency),
-#'   \code{V_E} (the finite-sample variance estimate S1^2/N_T + S0^2/ESS_C),
-#'   \code{V_P} (NA — not decomposed by this estimator),
+#' @return A one-row tibble with columns
 #'   \code{SE} (= sqrt(V_E)),
-#'   \code{N_T}, \code{ESS_C}, \code{sigma_hat} (NA),
-#'   plus diagnostics \code{S0_sq}, \code{S1_sq}, \code{cov_w_s}.
+#'   \code{V_E} (the finite-sample variance estimate S1^2/N_T + S0^2/ESS_C),
+#'   \code{N_T}, \code{N_C}, \code{ESS_C},
+#'   \code{p_drop} (share of treated units whose matched set has fewer
+#'   than 2 controls, so contributes no s_t^2),
+#'   and the variance components \code{S0_sq}, \code{S1_sq}, and
+#'   \code{cov_w_s} (NA when \code{homoskedastic = TRUE}).  No single
+#'   residual SD (\code{sigma_hat}) is reported, since S0^2 and S1^2
+#'   are estimated separately.
 #' @examples
 #' set.seed(4044440)
 #' dat <- gen_one_toy(nt = 5)
@@ -1120,15 +1129,15 @@ get_finite_variance <- function(
   if ( homoskedastic ) {
     V_E = mean( s_t_sq_df$s_t_sq ) * (1/N_T + 1/ESS_C)
     rs <- tibble(
-      V_E       = V_E,
       SE        = sqrt(V_E),
+      V_E       = V_E,
       N_T       = N_T,
-      N_C      = N_C,
+      N_C       = N_C,
       ESS_C     = ESS_C,
-      sigma_hat = NA_real_,
-      p_drop   = p_drop,
+      p_drop    = p_drop,
       S0_sq     = mean( s_t_sq_df$s_t_sq ),
-      S1_sq    = S0_sq # under homoskedasticity, S1^2 = S0^2
+      S1_sq     = S0_sq, # under homoskedasticity, S1^2 = S0^2
+      cov_w_s   = NA_real_
     )
     return( rs )
   }
@@ -1144,7 +1153,7 @@ get_finite_variance <- function(
   sum_w_sq <- sum(control_df$w_j^2, na.rm = TRUE)
   S0_sq    <- sum(control_df$w_j^2 * control_df$s_j_sq, na.rm = TRUE) / sum_w_sq
   if ( all( is.na( control_df$s_j_sq ) ) ) {
-    cov_w_s = NA
+    cov_w_s <- NA_real_
   } else {
     cov_w_s <- cov(control_df$w_j, control_df$s_j_sq, use = "complete.obs")
   }
@@ -1175,12 +1184,11 @@ get_finite_variance <- function(
 
   tibble(
     SE        = sqrt(V_E),
+    V_E       = V_E,
     N_T       = N_T,
     N_C       = N_C,
     ESS_C     = ESS_C,
-    sigma_hat = NA_real_,
-    V_E       = V_E,
-    p_drop  = p_drop,
+    p_drop    = p_drop,
     S0_sq     = S0_sq,
     S1_sq     = S1_sq,
     cov_w_s   = cov_w_s
