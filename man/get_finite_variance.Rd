@@ -60,10 +60,9 @@ A one-row tibble with columns
 \code{p_drop} (share of treated units whose matched set has fewer
 than 2 controls, so contributes no s_t^2),
 and the variance components \code{S0_sq}, \code{S1_sq}, and
-\code{cov_w_s} (NA when \code{homoskedastic = TRUE}).  When
-\code{homoskedastic = TRUE}, also \code{sigma_hat} (= sqrt(S0_sq),
-the single pooled residual SD); otherwise S0^2 and S1^2 are
-estimated separately and no \code{sigma_hat} is reported.
+\code{cov_w_s} (NA when \code{homoskedastic = TRUE}).  No single
+residual SD (\code{sigma_hat}) is reported, since S0^2 and S1^2
+are estimated separately.
 }
 \description{
 Implements the plug-in estimator
