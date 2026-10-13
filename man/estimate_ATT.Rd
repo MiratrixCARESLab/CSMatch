@@ -81,7 +81,7 @@ method and for \code{get_finite_variance()} when
 \code{get_finite_variance()} (and on to
 \code{calculate_S1_sq_treated_to_treated()}) when
 \code{superpopulation = FALSE} and \code{use_common_variance =
-  FALSE}. If \code{matches} is a csm_matches object, any of these
+FALSE}. If \code{matches} is a csm_matches object, any of these
 left \code{NULL} are filled in from \code{params(matches)};
 otherwise they must be supplied directly (required when
 \code{matches} is a plain data frame).}
@@ -95,10 +95,16 @@ when \code{superpopulation = TRUE}, e.g. \code{M} for the 'ai06'
 method.}
 }
 \value{
-A tibble with ATT estimate (ATT), standard error (SE),
-t-statistic (t), total variance (V), measurement error variance
-(V_E), population heterogeneity variance (V_P), and other
-relevant statistics.
+A one-row tibble with the ATT estimate (ATT), standard
+error (SE), and t-statistic (t), plus variance diagnostics that
+depend on the estimator.  With \code{superpopulation = FALSE}
+(default) these are the columns of \code{get_finite_variance()}
+(\code{V_E}, \code{N_T}, \code{N_C}, \code{ESS_C},
+\code{p_drop}, \code{S0_sq}, \code{S1_sq}, \code{cov_w_s}).
+With \code{superpopulation = TRUE} they are the columns of
+\code{get_total_variance()}, including total variance (V),
+measurement error variance (V_E), population heterogeneity
+variance (V_P), and the pooled residual SD (\code{sigma_hat}).
 }
 \description{
 Calculate ATT and associated standard error using the specified
