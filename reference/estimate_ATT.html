@@ -156,7 +156,7 @@ method and for <code><a href="get_finite_variance.html">get_finite_variance()</a
 <code><a href="get_finite_variance.html">get_finite_variance()</a></code> (and on to
 <code><a href="calculate_S1_sq_treated_to_treated.html">calculate_S1_sq_treated_to_treated()</a></code>) when
 <code>superpopulation = FALSE</code> and <code>use_common_variance =
-  FALSE</code>. If <code>matches</code> is a csm_matches object, any of these
+FALSE</code>. If <code>matches</code> is a csm_matches object, any of these
 left <code>NULL</code> are filled in from <code>params(matches)</code>;
 otherwise they must be supplied directly (required when
 <code>matches</code> is a plain data frame).</p></dd>
@@ -176,10 +176,16 @@ method.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A tibble with ATT estimate (ATT), standard error (SE),
-t-statistic (t), total variance (V), measurement error variance
-(V_E), population heterogeneity variance (V_P), and other
-relevant statistics.</p>
+    <p>A one-row tibble with the ATT estimate (ATT), standard
+error (SE), and t-statistic (t), plus variance diagnostics that
+depend on the estimator.  With <code>superpopulation = FALSE</code>
+(default) these are the columns of <code><a href="get_finite_variance.html">get_finite_variance()</a></code>
+(<code>V_E</code>, <code>N_T</code>, <code>N_C</code>, <code>ESS_C</code>,
+<code>p_drop</code>, <code>S0_sq</code>, <code>S1_sq</code>, <code>cov_w_s</code>).
+With <code>superpopulation = TRUE</code> they are the columns of
+<code><a href="get_total_variance.html">get_total_variance()</a></code>, including total variance (V),
+measurement error variance (V_E), population heterogeneity
+variance (V_P), and the pooled residual SD (<code>sigma_hat</code>).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -200,11 +206,10 @@ bootstrap, if specified.</p>
 <span class="r-in"><span>                        est_method <span class="op">=</span> <span class="st">"csm"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>treatment variable not specified; defaulting to 'Z'</span>
 <span class="r-in"><span><span class="fu">estimate_ATT</span><span class="op">(</span><span class="va">mtch</span>, outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 12</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     ATT    SE   N_T   N_C ESS_C sigma_hat    V_E p_drop S0_sq S1_sq  cov_w_s</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>  3.62 0.249     5    14  10.1        <span style="color: #BB0000;">NA</span> 0.061<span style="text-decoration: underline;">8</span>      0 0.200 0.210 -<span style="color: #BB0000;">0.002</span><span style="color: #BB0000; text-decoration: underline;">56</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 1 more variable: t &lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 11</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ATT    SE    V_E   N_T   N_C ESS_C p_drop S0_sq S1_sq  cov_w_s     t</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>  3.62 0.249 0.061<span style="text-decoration: underline;">8</span>     5    14  10.1      0 0.200 0.210 -<span style="color: #BB0000;">0.002</span><span style="color: #BB0000; text-decoration: underline;">56</span>  14.6</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -131,13 +131,16 @@ Required when <code>matches</code> is a data frame and
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A tibble with columns matching <code><a href="get_total_variance.html">get_total_variance()</a></code>:
-<code>V</code> (= V_E * N_T, for SE = sqrt(V)/sqrt(N_T) consistency),
-<code>V_E</code> (the finite-sample variance estimate S1^2/N_T + S0^2/ESS_C),
-<code>V_P</code> (NA — not decomposed by this estimator),
+    <p>A one-row tibble with columns
 <code>SE</code> (= sqrt(V_E)),
-<code>N_T</code>, <code>ESS_C</code>, <code>sigma_hat</code> (NA),
-plus diagnostics <code>S0_sq</code>, <code>S1_sq</code>, <code>cov_w_s</code>.</p>
+<code>V_E</code> (the finite-sample variance estimate S1^2/N_T + S0^2/ESS_C),
+<code>N_T</code>, <code>N_C</code>, <code>ESS_C</code>,
+<code>p_drop</code> (share of treated units whose matched set has fewer
+than 2 controls, so contributes no s_t^2),
+and the variance components <code>S0_sq</code>, <code>S1_sq</code>, and
+<code>cov_w_s</code> (NA when <code>homoskedastic = TRUE</code>).  No single
+residual SD (<code>sigma_hat</code>) is reported, since S0^2 and S1^2
+are estimated separately.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -159,10 +162,10 @@ which goes with the alternate formulation of:</p>
 <span class="r-in"><span>                        est_method <span class="op">=</span> <span class="st">"csm"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>treatment variable not specified; defaulting to 'Z'</span>
 <span class="r-in"><span><span class="fu">get_finite_variance</span><span class="op">(</span><span class="va">mtch</span>, outcome <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 10</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      SE   N_T   N_C ESS_C sigma_hat    V_E p_drop S0_sq S1_sq  cov_w_s</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0.249     5    14  10.1        <span style="color: #BB0000;">NA</span> 0.061<span style="text-decoration: underline;">8</span>      0 0.200 0.210 -<span style="color: #BB0000;">0.002</span><span style="color: #BB0000; text-decoration: underline;">56</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 9</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      SE    V_E   N_T   N_C ESS_C p_drop S0_sq S1_sq  cov_w_s</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0.249 0.061<span style="text-decoration: underline;">8</span>     5    14  10.1      0 0.200 0.210 -<span style="color: #BB0000;">0.002</span><span style="color: #BB0000; text-decoration: underline;">56</span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
